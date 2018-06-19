@@ -407,7 +407,7 @@ class Chat extends Component {
 				avtar={AvtarUrl}
 				action='home'
 				unfriend={this.toggleUnfriendDialog.bind(this)}
-				style={{backgroundColor: '#AA00FF'}}
+				style={{backgroundColor: '#199aab'}}
 			/>
 			{
 				this.state.loading &&

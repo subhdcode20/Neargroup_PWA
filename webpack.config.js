@@ -57,7 +57,7 @@ module.exports = {
           uglifyOptions: {
             compress : {
               dead_code: true,
-              // drop_console: true,
+              drop_console: true,
               unused: true
             }
           }

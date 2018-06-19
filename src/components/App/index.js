@@ -233,7 +233,7 @@ class List extends Component {
             const botChats = JSON.parse(localStorage.getItem('NG_PWA_BOT_CHATS')) || {};
             const storedFriends = Object.keys(botChats);
             const newFriends = friendMeetingIds.filter(id => !storedFriends.includes(id));
-            if(newFriends.length !== 0) this.props.getFriendsChat(channelId, newFriends);
+            // if(newFriends.length !== 0) this.props.getFriendsChat(channelId, newFriends);
         }catch(e){}
     }
 
@@ -267,20 +267,9 @@ class List extends Component {
           console.log("render error ");
           return <div />
         }
-        // false &&
+
         return (
             <div>
-                {
-                  !this.state.isNotificationEnabeled &&
-                    <div>
-                        <div className={Styles.overlay} />
-                        <div
-                            className={Styles.popup}
-                            style={{background: 'url(notify.png)'}}
-                            onClick={this.processNotifications}
-                        />
-                    </div>
-                }
                 <FriendList ucc={this.props.unreadChatCounts} />
             </div>
         );

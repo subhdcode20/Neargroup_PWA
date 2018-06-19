@@ -18,6 +18,30 @@ import NoFriends from '../NoFriends';
 import Styles from './styles.scss'
 import { htmlDecode, sortFriendList, formatDate, formatTime } from '../../utility';
 
+import { withStyles } from '@material-ui/core/styles';
+
+const styles = {
+  chipCount: {
+		color: 'white',
+    fontSize: "10px !important",
+    padding: "0px 10px !important",
+    lineHeight: "25px !important",
+  },
+  chip: {
+    height: "25px !important",
+    minWidth: "25px !important",
+    marginTop: "5px !important",
+    float: 'left',
+    fontSize: 15,
+    backgroundColor: '#199aab', //#00E676
+    borderRadius: 25
+  },
+  noti_sec: {
+    minWidth: "10% !important",
+    maxWidth: "28% !important"
+  }
+};
+
 class FriendList extends Component {
 
 	constructor(props) {
@@ -138,7 +162,8 @@ class FriendList extends Component {
 				this.props.sendPush({
 					toChannelId: chatObj.toId,
 					fromChannelId: chatObj.fromId,
-					msg: chatObj.msg.substring(0,200)  //this.state.message.substring(0,200)
+					msg: chatObj.msg.substring(0,200),  //this.state.message.substring(0,200)
+					meetingId: item
 				});
 			}
 		} catch (e) {
@@ -195,7 +220,7 @@ class FriendList extends Component {
 			}
 
 			console.log('final secondaryText= ', secondaryText);
-
+      let jss = this.props.classes
 				return (
 					<List style={{padding: 0}}>
 					<Divider inset component="li" />
@@ -206,11 +231,11 @@ class FriendList extends Component {
 					primaryText={<Twemoji text={htmlDecode(friend.name)} />}
 					containerElement={<Link to="/chat" />}
 					rightIcon={
-						(<div style={{float: 'right', width: '26%'}}>
-						{Number(ucc[friend.meetingId]) > 0 && (<Chip style={{float: 'left', fontSize: 15, backgroundColor: '#00E676'}}>{ucc[friend.meetingId]}</Chip>) }
+						(<div className={jss.noti_sec} style={{float: 'right', width: '26%', margin: 10}}>
+						{Number(ucc[friend.meetingId]) > 0 && (<div className={jss.chip}><span className={jss.chipCount}>{ucc[friend.meetingId]}</span></div>) }
 						<p className={Styles.lastTime}>
 							{/** <span style={{float: 'left', fontSize: 15, color: '#4CAF50'}}>{Number(ucc[friend.meetingId]) > 0 && ucc[friend.meetingId]}</span> **/}
-							<span style={{float: 'right', color: Number(ucc[friend.meetingId]) > 0 ? '#00E676' : '' }}>{this.handleLastTime(friend.lastTime)}</span>
+							<span style={{float: 'right', color: Number(ucc[friend.meetingId]) > 0 ? '#199aab' : '' }}>{this.handleLastTime(friend.lastTime)}</span>
 						</p>
 						</div>)
 					}
@@ -224,13 +249,14 @@ class FriendList extends Component {
 	  	});
 	}
 
+
   	render() {
-			// style={{backgroundColor: Number(ucc[friend.meetingId]) > 0 ? "#E0E0E0" : ''}}
+
 			console.log('render FriendsList', this.state);
 		const { loading, friends } = this.props;
 	    return (
 			<div>
-				<Header name="Friends" style={{backgroundColor: '#AA00FF'}} />
+				<Header name="Friends" style={{backgroundColor: '#199aab'}} />
 				<div className={Styles.FriendList}>
 					{loading &&
 						<div>
@@ -293,4 +319,4 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(FriendList);
+export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(FriendList));
