@@ -22,23 +22,44 @@ import { withStyles } from '@material-ui/core/styles';
 
 const styles = {
   chipCount: {
-		color: 'white',
+    color: "white",
+    padding: "0px 7px !important",
     fontSize: "10px !important",
-    padding: "0px 10px !important",
-    lineHeight: "25px !important",
+
+		// color: 'white',
+    // fontSize: "10px !important",
+    // padding: "0px 10px !important",
+    // lineHeight: "25px !important",
   },
   chip: {
-    height: "25px !important",
-    minWidth: "25px !important",
-    marginTop: "5px !important",
-    float: 'left',
-    fontSize: 15,
-    backgroundColor: '#199aab', //#00E676
-    borderRadius: 25
+    float: "right",
+    height: "20px !important",
+    minWidth: "20px !important",
+    fontSize: "15px",
+/* margin-top: 5px !important; */
+    borderRadius: "25px",
+    backgroundColor: "#199aab",
+
+    // height: "25px !important",
+    // minWidth: "25px !important",
+    // marginTop: "5px !important",
+    // float: 'left',
+    // fontSize: 15,
+    // backgroundColor: '#199aab', //#00E676
+    // borderRadius: 25
   },
   noti_sec: {
-    minWidth: "10% !important",
-    maxWidth: "28% !important"
+    height: "60px !important",
+    marginRight: "10px !important",
+    width: "5% !important",
+    margin: "0 !important",
+    /* top: 5px !important; */
+    paddingTop: 5,
+
+    // width: "10% !important",
+    // height: 60;
+    // marginRight: 10;
+    // top: 15;
   }
 };
 
@@ -212,6 +233,7 @@ class FriendList extends Component {
 			console.log("friend newfriend= ", friend);
 			let secondaryText = <p/>
 			if(friend.newfriend != undefined) {
+        // TODO:  || friend.lastMsg == undefined
 				console.log('friend.newfriend present');
 				secondaryText = <p>This is your new match!</p>
 			} else {
@@ -232,11 +254,11 @@ class FriendList extends Component {
 					containerElement={<Link to="/chat" />}
 					rightIcon={
 						(<div className={jss.noti_sec} style={{float: 'right', width: '26%', margin: 10}}>
-						{Number(ucc[friend.meetingId]) > 0 && (<div className={jss.chip}><span className={jss.chipCount}>{ucc[friend.meetingId]}</span></div>) }
-						<p className={Styles.lastTime}>
+						<p className={Styles.lastTime} style={{margin: 0}}>
 							{/** <span style={{float: 'left', fontSize: 15, color: '#4CAF50'}}>{Number(ucc[friend.meetingId]) > 0 && ucc[friend.meetingId]}</span> **/}
 							<span style={{float: 'right', color: Number(ucc[friend.meetingId]) > 0 ? '#199aab' : '' }}>{this.handleLastTime(friend.lastTime)}</span>
 						</p>
+            {Number(ucc[friend.meetingId]) > 0 && (<div className={jss.chip}><span className={jss.chipCount}>{ucc[friend.meetingId]}</span></div>) }
 						</div>)
 					}
 					secondaryText={

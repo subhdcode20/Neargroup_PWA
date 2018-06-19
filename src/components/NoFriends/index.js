@@ -22,7 +22,7 @@ export default class NoFriends extends Component {
 				  	<RaisedButton
 						label="GO BACK"
 						primary={true}
-						href="https://m.me/WispBot"
+						href="https://m.me/neargroup"
 					/>
 				</div>
 		  	</div>

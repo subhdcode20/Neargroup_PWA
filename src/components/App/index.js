@@ -40,7 +40,7 @@ class List extends Component {
     }
 
     componentDidMount() {
-      console.log('in App didMount');
+      console.log('in App didMount ', this.props);
         if(navigator.onLine && !this.props.noReload){
             let authId;
             let onlyGetPermission
