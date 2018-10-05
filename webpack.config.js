@@ -57,7 +57,7 @@ module.exports = {
           uglifyOptions: {
             compress : {
               dead_code: true,
-              // drop_console: true,
+              drop_console: true,
               unused: true
             }
           }
@@ -69,11 +69,13 @@ module.exports = {
           FIREBASE_PROJECT_ID : JSON.stringify('neargroup-lite'),
           FIREBASE_MESSAGING_ID : JSON.stringify('485643019459'),
           FIREBASE_STORAGE_BUCKET : JSON.stringify('neargroup-lite.appspot.com'),
-          API: JSON.stringify('https://mytest.neargroup.me/ng/'),  //JSON.stringify('https://4d44c241.ngrok.io/NG/'),
+          API: JSON.stringify('https://myfriends.neargroup.me/ng/'),  //JSON.stringify('https://web.neargroup.me/ng/'),
           AVTAR: JSON.stringify('avtar.svg'),
           'process.env': {
               NODE_ENV: JSON.stringify('production')
-          }
+          },
+          LS_APP_PWA_NOTIFICATION: JSON.stringify('NG_APP_SD_NOTIFICATION'),
+          LS_APP_PWA_LASTMSG: JSON.stringify('NG_PWA_LAST_MSG'),
 
         })
       ]

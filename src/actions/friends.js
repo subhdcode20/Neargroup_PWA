@@ -1,5 +1,6 @@
 import axios from 'axios';
 import Store from '../reducers/store';
+import {getLSItem, setLSItem} from '../utility'
 
 export function showLoader() {
     return {
@@ -9,7 +10,8 @@ export function showLoader() {
 }
 
 export const getFriends = (authId = '') => {
-    const startTime = localStorage.getItem(`NG_PWA_START`) || Date.now();
+    const startTime = getLSItem('NG_PWA_START') || Date.now();
+    // localStorage.getItem(`NG_PWA_START`)
     Store.dispatch(showLoader());
     return axios({
         method: 'GET',

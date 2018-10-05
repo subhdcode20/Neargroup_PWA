@@ -14,7 +14,7 @@ import ActionUnSeen from "material-ui/svg-icons/navigation/check";
 import RefreshIndicator from "material-ui/RefreshIndicator";
 import { cyan500 } from "material-ui/styles/colors";
 import { getLastMsg, sendPush, addChildListener, setChats, addChats, setItems, unfriend, setUnreadChatCount } from '../../actions/friends';
-import { htmlDecode, formatTime, formatDate } from '../../utility';
+import { htmlDecode, formatTime, formatDate, getLSItem, setLSItem } from '../../utility';
 
 import Header from "../Header";
 
@@ -43,10 +43,12 @@ class Chat extends Component {
 
 	componentWillMount() {
 		console.log("in willMount Chat");
-		localStorage.setItem("CHAT_BOX_CLOSED", false)
+		// localStorage.setItem("CHAT_BOX_CLOSED", false)
+		setLSItem('CHAT_BOX_CLOSED', false)
 		if(!this.props.data) return false;
 		const { data, fromId } = this.props;
-		localStorage.setItem(`NG_PWA_UNREAD_COUNT_${data.meetingId}`, 0)
+		// localStorage.setItem(`NG_PWA_UNREAD_COUNT_${data.meetingId}`, 0)
+		setLSItem(`NG_PWA_UNREAD_COUNT_${data.meetingId}`, 0);
 		this.props.setUnreadChatCount(this.props.data.meetingId, 0);
 		this.props.setChats(data.meetingId);
 
@@ -81,7 +83,8 @@ class Chat extends Component {
 		// if user is offline, get last seen of friend from cache
 		if(!navigator.onLine) {
 			try{
-				const lastSeens = JSON.parse(localStorage.getItem('NG_PWA_FRIEND_LAST_SEEN'));
+				const lastSeens = getLSItem('NG_PWA_FRIEND_LAST_SEEN')
+				// JSON.parse(localStorage.getItem('NG_PWA_FRIEND_LAST_SEEN'));
 				if(lastSeens[data.channelId]) this.props.setItems('friendsLastSeen', data.channelId, lastSeens[data.channelId]);
 			} catch(e){}
 		}
@@ -95,10 +98,11 @@ class Chat extends Component {
 		if(navigator.onLine) {
 		console.log("navigator online");
 			try{
-				let offlineChats = localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
+				let offlineChats = getLSItem('NG_PWA_OFFLINE_CHATS')
+				// localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
 				console.log("offlineChats =", offlineChats, data);
 				if(offlineChats) {
-					offlineChats = JSON.parse(offlineChats);
+					// offlineChats = JSON.parse(offlineChats);
 					const myOfflineChats = offlineChats[data.meetingId] || [];
 					if(myOfflineChats.length > 0){
 						console.log("got OFFLINE CHATS");
@@ -107,7 +111,8 @@ class Chat extends Component {
 							this.processChat(chatObj)
 						})
 						delete(offlineChats[data.meetingId]);
-						localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
+						// localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
+						setLSItem('NG_PWA_OFFLINE_CHATS', offlineChats)
 					}
 				}
 			}catch(e){}
@@ -141,9 +146,10 @@ class Chat extends Component {
 		if(navigator.onLine) {
 			const { data } = this.props;
 			try{
-				let offlineChats = localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
+				let offlineChats = getLSItem('NG_PWA_OFFLINE_CHATS')
+				// localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
 				if(offlineChats) {
-					offlineChats = JSON.parse(offlineChats);
+					// offlineChats = JSON.parse(offlineChats);
 					const myOfflineChats = offlineChats[data.meetingId] || [];
 					if(myOfflineChats.length > 0){
 						myOfflineChats.forEach(chatObj => {
@@ -151,7 +157,8 @@ class Chat extends Component {
 							this.processChat(chatObj)
 						})
 						delete(offlineChats[data.meetingId]);
-						localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
+						// localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
+						setLSItem('NG_PWA_OFFLINE_CHATS', offlineChats)
 					}
 				}
 			}catch(e){}
@@ -212,20 +219,22 @@ class Chat extends Component {
 	cacheSentChat(chatObj) {
 		console.log("in cacheSentChat ", chatObj);
 		const { data, fromId, isOtherOnline } = this.props;
-		let offlineChats = localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
+		let offlineChats = getLSItem('NG_PWA_OFFLINE_CHATS')
+		// localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
 		let myOfflineChats = [];
 		if(offlineChats) {
-			offlineChats = JSON.parse(offlineChats);
+			// offlineChats = JSON.parse(offlineChats);
 			myOfflineChats = offlineChats[data.meetingId] || [];
 		} else {
 			offlineChats = {};
 		}
 		myOfflineChats.push(chatObj);
 		offlineChats[data.meetingId] = myOfflineChats;
-		localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
+		setLSItem('NG_PWA_OFFLINE_CHATS', offlineChats)
+		// localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
 
 		// send offline chats once offline
-		window.addEventListener('online',  this.sendOffliceMessages);
+		// window.addEventListener('online',  this.sendOffliceMessages);
 	}
 
 	processChat(chatObj) {
@@ -250,13 +259,13 @@ class Chat extends Component {
 			console.log("sendPush= ", {
 				toChannelId: data.channelId,
 				fromChannelId: fromId,
-				msg: chatObj.msg.substring(0,200),  //this.state.message.substring(0,200)
+				msg: chatObj.msg.substring(0,200),
 				meetingId: data.meetingId
 			});
 			this.props.sendPush({
 				toChannelId: data.channelId,
 				fromChannelId: fromId,
-				msg: chatObj.msg.substring(0,200),  //this.state.message.substring(0,200)
+				msg: chatObj.msg.substring(0,200),
 				meetingId: data.meetingId
 			});
 		}
@@ -325,18 +334,21 @@ class Chat extends Component {
 	storeChat(msg) {
 		try {
 			const { data } = this.props;
-			const chats = JSON.parse(localStorage.getItem(`NG_PWA_CHAT_${data.meetingId}`)) || [];
+			const chats = getLSItem(`NG_PWA_CHAT_${data.meetingId}`) || [];
+			// JSON.parse(localStorage.getItem(`NG_PWA_CHAT_${data.meetingId}`))
 			chats.push(msg);
-			localStorage.setItem(
-				`NG_PWA_CHAT_${this.props.data.meetingId}`,
-				JSON.stringify(chats)
-			);
+			setLSItem(`NG_PWA_CHAT_${this.props.data.meetingId}`, chats)
+			// localStorage.setItem(
+			// 	`NG_PWA_CHAT_${this.props.data.meetingId}`,
+			// 	JSON.stringify(chats)
+			// );
 		}catch(e){}
 	}
 
 	headerValue(name) {
 		const { data, isOtherOnline, friendsLastSeen  } = this.props;
-		const localfriendsLastSeen = JSON.parse(localStorage.getItem("NG_PWA_FRIEND_LAST_SEEN"))
+		const localfriendsLastSeen = getLSItem('NG_PWA_FRIEND_LAST_SEEN')
+		// JSON.parse(localStorage.getItem("NG_PWA_FRIEND_LAST_SEEN"))
 		console.log("headerValue = ", friendsLastSeen, localfriendsLastSeen, data.channelId);
 
 		let subHead = '';
@@ -392,9 +404,11 @@ class Chat extends Component {
 			return <Redirect to="/" push />
 		}
 		const AvtarUrl = `https://s3-us-west-2.amazonaws.com/ng-image/ng/thumb/512_512_profile_${data.imageUrl}`   //`https://img.neargroup.me/project/50x50/forcesize/50x50/profile_${data.imageUrl}`;
-		const uccChat = localStorage.getItem("NG_PWA_UNREAD_COUNTS")
+		const uccChat = getLSItem('NG_PWA_UNREAD_COUNTS')
+		// localStorage.getItem("NG_PWA_UNREAD_COUNTS")
 
-		let lastTriggerStamp = localStorage.getItem(`CHAT_LAST_TRIGGERSTAMP_${data.meetingId}`)
+		let lastTriggerStamp = getLSItem(`CHAT_LAST_TRIGGERSTAMP_${data.meetingId}`)
+		// localStorage.getItem(`CHAT_LAST_TRIGGERSTAMP_${data.meetingId}`)
 		console.log('lastTriggerStamp in render= ', lastTriggerStamp);
 		// let newTriggerStamp = triggerStamp
 		console.log("actionsend= ", navOnline, isOtherOnline, isOtherOnline[data.channelId], navOnline && isOtherOnline && isOtherOnline[data.channelId], isOtherOnline && isOtherOnline[data.channelId])

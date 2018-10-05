@@ -16,7 +16,7 @@ import { setMeeting, getLastMsg, sendPush } from '../../actions/friends';
 import Header from '../Header';
 import NoFriends from '../NoFriends';
 import Styles from './styles.scss'
-import { htmlDecode, sortFriendList, formatDate, formatTime } from '../../utility';
+import { htmlDecode, sortFriendList, formatDate, formatTime, getLSItem, setLSItem } from '../../utility';
 
 import { withStyles } from '@material-ui/core/styles';
 
@@ -78,8 +78,10 @@ class FriendList extends Component {
 	}
 
 	componentWillMount() {
-		localStorage.setItem("CHAT_BOX_CLOSED", true)
-		var getUcc = localStorage.getItem("NG_PWA_UNREAD_COUNTS")
+		// localStorage.setItem("CHAT_BOX_CLOSED", true)
+    setLSItem('CHAT_BOX_CLOSED', true)
+		// var getUcc = localStorage.getItem("NG_PWA_UNREAD_COUNTS")
+    var getUcc = getLSItem('NG_PWA_UNREAD_COUNTS')
 
 		// if(localUcc == null || localUcc == undefined || )
 		console.log('getUcc = ', getUcc);
@@ -126,7 +128,8 @@ class FriendList extends Component {
 		if(navigator.onLine) {
 		console.log("navigator online 222");
 			try{
-				let offlineChats = localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
+				let offlineChats = getLSItem('NG_PWA_OFFLINE_CHATS')
+        // localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
 				console.log("offlineChats 222 =", offlineChats, data);
 				if(offlineChats) {
 					offlineChats = JSON.parse(offlineChats);
@@ -141,7 +144,8 @@ class FriendList extends Component {
 							})
 							console.log('process all offline chats');
 							delete(offlineChats[item]);
-							localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
+              setLSItem('NG_PWA_OFFLINE_CHATS', offlineChats)
+							// localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
 						}
 					})
 
@@ -164,12 +168,14 @@ class FriendList extends Component {
 					// this.storeChat(chatObj);
 					try {
 						// const { data } = this.props;
-						const chats = JSON.parse(localStorage.getItem(`NG_PWA_CHAT_${item}`)) || [];
+						const chats = getLSItem(`NG_PWA_CHAT_${item}`) || [];
+            // JSON.parse(localStorage.getItem(`NG_PWA_CHAT_${item}`))
 						chats.push(msg);
-						localStorage.setItem(
-							`NG_PWA_CHAT_${item}`,
-							JSON.stringify(chats)
-						);
+						// localStorage.setItem(
+						// 	`NG_PWA_CHAT_${item}`,
+						// 	JSON.stringify(chats)
+						// );
+            setLSItem(`NG_PWA_CHAT_${item}`, chats)
 					}catch(e){}
 				}
 				console.log('getLastMsg in processChat= ', item, chatObj);
@@ -224,7 +230,7 @@ class FriendList extends Component {
 		console.log('lastChats in populateFriendsList= ', lastChats);
 		const sortedFriends = sortFriendList(friends, lastChats) || [];
 	  	const AvtarUrl = 'https://s3-us-west-2.amazonaws.com/ng-image/ng/thumb/512_512_profile_'  //'https://img.neargroup.me/project/forcesize/50x50/profile_';
-		return sortedFriends.map( friend => {
+		return sortedFriends.map( (friend, index) => {
 			console.log("populate friendslist friend= ", friend);
 			const sentByMe = (friend.msgFrom == me.channelId) ? true: false;
 			console.log("NG_PWA_UNREAD_COUNT of "+friend.meetingId+ " -- " + ucc[friend.meetingId]  );
@@ -244,7 +250,7 @@ class FriendList extends Component {
 			console.log('final secondaryText= ', secondaryText);
       let jss = this.props.classes
 				return (
-					<List style={{padding: 0}}>
+					<List key={index} style={{padding: 0}}>
 					<Divider inset component="li" />
 	  			<ListItem
 					key={friend.channelId}

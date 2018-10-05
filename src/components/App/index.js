@@ -5,6 +5,7 @@ import Chat from '../Chat';
 import {setUnreadChatCount, getFriends, getFriendsCache, getLastMsg, getFriendsChat, processChat } from '../../actions/friends';
 import setFCM from '../../FCM';
 import querystring from 'query-string';
+import {getLSItem, setLSItem} from '../../utility'
 
 import Styles from './style.scss';
 
@@ -22,20 +23,31 @@ class List extends Component {
 
     componentWillMount() {
         this.props.getFriendsCache();
-        if(localStorage.getItem("CHAT_BOX_CLOSED") == null || localStorage.getItem("CHAT_BOX_CLOSED") == undefined) {
-          localStorage.setItem("CHAT_BOX_CLOSED", false)
+        // if(localStorage.getItem("CHAT_BOX_CLOSED") == null || localStorage.getItem("CHAT_BOX_CLOSED") == undefined) {
+        //   localStorage.setItem("CHAT_BOX_CLOSED", false)
+        // }
+        // if(localStorage.getItem("NG_PWA_LAST_MSG") == null || localStorage.getItem("NG_PWA_LAST_MSG") == undefined) {
+        //   localStorage.setItem("NG_PWA_LAST_MSG", JSON.stringify({}))
+        // }
+        if(getLSItem("CHAT_BOX_CLOSED") == null || getLSItem("CHAT_BOX_CLOSED") == undefined) {
+          // localStorage.setItem("CHAT_BOX_CLOSED", false)
+          setLSItem("CHAT_BOX_CLOSED", false)
         }
-        if(localStorage.getItem("NG_PWA_LAST_MSG") == null || localStorage.getItem("NG_PWA_LAST_MSG") == undefined) {
-          localStorage.setItem("NG_PWA_LAST_MSG", JSON.stringify({}))
+        if(getLSItem("NG_PWA_LAST_MSG") == null || getLSItem("NG_PWA_LAST_MSG") == undefined) {
+          // localStorage.setItem("NG_PWA_LAST_MSG", JSON.stringify({}))
+          setLSItem("NG_PWA_LAST_MSG", {})
         }
         this.setState({
-            isNotificationEnabeled: localStorage.getItem(`NG_PWA_NOTIFICATION`)
+            isNotificationEnabeled: getLSItem(`${LS_APP_PWA_NOTIFICATION}`)
         });
-        const lastMessages = localStorage.getItem('NG_PWA_LAST_MSG');
+        // localStorage.getItem(`NG_PWA_NOTIFICATION`)
+        const lastMessages = getLSItem(`${LS_APP_PWA_LASTMSG}`)
+        // localStorage.getItem('NG_PWA_LAST_MSG');
         try {
             this.setState({
-                lastMsg: JSON.parse(lastMessages)
+                lastMsg: lastMessages
             })
+            // JSON.parse(lastMessages)
         }catch(e){}
     }
 
@@ -51,14 +63,13 @@ class List extends Component {
               onlyGetPermission = searchParams.only_permission
               console.log("got url params- ", authId, onlyGetPermission);
 
-                // const searchParams = searchText.split('=');
-                // if(searchParams.length > 2) this.setState({ error: true });
-                // authId = searchParams.pop();
-                localStorage.setItem('NG_PWA_AUTHID', JSON.stringify(authId));
+                // localStorage.setItem('NG_PWA_AUTHID', JSON.stringify(authId));
+                setLSItem('NG_PWA_AUTHID', authId)
                 this.setState({onlyGetPermission})
             } else {
                 try{
-                    authId = JSON.parse(localStorage.getItem('NG_PWA_AUTHID'));
+                    authId = getLSItem('NG_PWA_AUTHID')
+                    // JSON.parse(localStorage.getItem('NG_PWA_AUTHID'));
                 }catch(e){}
             }
 
@@ -81,13 +92,16 @@ class List extends Component {
     }
 
     sendOffliceMessages() {
-      console.log('in sendOffliceMessages -- ', localStorage.getItem(`NG_PWA_OFFLINE_CHATS`));
+      console.log('in sendOffliceMessages -- ', getLSItem('NG_PWA_OFFLINE_CHATS'));
+      // localStorage.getItem(`NG_PWA_OFFLINE_CHATS`)
       const { meetingData, me, isOtherOnline } = this.props;
 			try{
-				let offlineChats = localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
+				let offlineChats = getLSItem('NG_PWA_OFFLINE_CHATS');
+        // localStorage.getItem(`NG_PWA_OFFLINE_CHATS`);
         console.log('offline chats in storage= ', offlineChats);
 				if(offlineChats) {
-          offlineChats = JSON.parse(offlineChats);
+          offlineChats = offlineChats
+          // JSON.parse(offlineChats);
           console.log("got offlineChats ok= ", offlineChats);
           for(var meetingid in offlineChats) {
             console.log("sending offline chats for meetingid ", meetingid);
@@ -107,12 +121,14 @@ class List extends Component {
                     if (chatObj.id) {
                       // this.storeChat(chatObj);
 
-                      const chats = JSON.parse(localStorage.getItem(`NG_PWA_CHAT_${data}`)) || [];
+                      const chats = getLSItem(`NG_PWA_CHAT_${data}`) || [];
+                      // JSON.parse(localStorage.getItem(`NG_PWA_CHAT_${data}`))
                       chats.push(chatObj);
-                      localStorage.setItem(
-                        `NG_PWA_CHAT_${this.props.data}`,
-                        JSON.stringify(chats)
-                      );
+                      setLSItem(`NG_PWA_CHAT_${this.props.data}`, chats)
+                      // localStorage.setItem(
+                      //   `NG_PWA_CHAT_${this.props.data}`,
+                      //   JSON.stringify(chats)
+                      // );
 
                     }
                     console.log('getLastMsg in processChat= ', data, chatObj);
@@ -123,7 +139,8 @@ class List extends Component {
 
               })
               delete(offlineChats[data.meetingId]);
-              localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
+              setLSItem('NG_PWA_OFFLINE_CHATS', offlineChats)
+              // localStorage.setItem(`NG_PWA_OFFLINE_CHATS`, JSON.stringify(offlineChats));
             }
           }
 
@@ -155,8 +172,11 @@ class List extends Component {
                     if (value) {
                         const msg = value[Object.keys(value)[0]];
                         console.log("localStorage on initial lastMsg= ", localStorage, msg, friend.meetingId);
-                        var showUnreadCount = localStorage.getItem("CHAT_BOX_CLOSED")
-                        var lastChat = JSON.parse(localStorage.getItem("NG_PWA_LAST_MSG"))[friend.meetingId]
+                        var showUnreadCount = getLSItem('CHAT_BOX_CLOSED')
+                        // localStorage.getItem("CHAT_BOX_CLOSED")
+                        var lastChat = getLSItem('NG_PWA_LAST_MSG')
+                        if(lastChat != null) lastChat =  lastChat[friend.meetingId]
+                        // JSON.parse(localStorage.getItem("NG_PWA_LAST_MSG"))[friend.meetingId]
                         console.log("localstorage lastChat in lastChat= ", lastChat);
                         console.log('getLastMsg in App receive props= ', friend.meetingId, msg);
                         console.log('CHAT_BOX_CLOSED in App receive props= ', showUnreadCount);
@@ -184,7 +204,8 @@ class List extends Component {
                         console.log("result= ", showUnreadCount == "true" && ll && lastChatNotMe);
                           if(showUnreadCount == "true" && ( lastChatNull || lastChatNew ) && lastChatNotMe) {
                             console.log('NOT initialCall');
-                            let unreadCountsState = JSON.parse(localStorage.getItem("NG_PWA_UNREAD_COUNTS"))  //props.unreadChatCounts
+                            let unreadCountsState = getLSItem('NG_PWA_UNREAD_COUNTS')
+                            // JSON.parse(localStorage.getItem("NG_PWA_UNREAD_COUNTS"))  //props.unreadChatCounts
                             console.log('getLastMsg 222 in App receive props= ', friend.meetingId, msg);
                             let unreadMsgsCount = unreadCountsState[friend.meetingId]
                             console.log('unreadMsgsCount= ',friend.meetingId, " : ", unreadMsgsCount, unreadCountsState);
@@ -230,7 +251,8 @@ class List extends Component {
 
     setFriendsChat(channelId, friendMeetingIds) {
         try{
-            const botChats = JSON.parse(localStorage.getItem('NG_PWA_BOT_CHATS')) || {};
+            const botChats = getLSItem('NG_PWA_BOT_CHATS') || {};
+            // JSON.parse(localStorage.getItem('NG_PWA_BOT_CHATS'))
             const storedFriends = Object.keys(botChats);
             const newFriends = friendMeetingIds.filter(id => !storedFriends.includes(id));
             // if(newFriends.length !== 0) this.props.getFriendsChat(channelId, newFriends);
@@ -242,8 +264,10 @@ class List extends Component {
         this.setState({
             isNotificationEnabeled: true
         });
-        localStorage.setItem(`NG_PWA_NOTIFICATION`, true);
-        localStorage.setItem(`NG_PWA_START`, Date.now());
+        // localStorage.setItem(`NG_PWA_NOTIFICATION`, true);
+        setLSItem('NG_PWA_NOTIFICATION', true);
+        // localStorage.setItem(`NG_PWA_START`, Date.now());
+        setLSItem('NG_PWA_START', Date.now());
         if(
             this.props.me &&
             this.props.me.channelId

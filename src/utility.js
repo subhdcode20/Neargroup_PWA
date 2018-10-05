@@ -90,3 +90,38 @@ export const formatDate = t => {
 	const dateObj = new Date(parseInt(t, 10));
 	return dateObj.toDateString().substr(4);
 }
+
+export const getLSItem = (key) => {
+	let value = localStorage.getItem(key);
+	console.log('get LOCALSTORAGE ', key ); //value, typeof value
+ 	if(value === null) {
+		return null
+	} else if (typeof value === 'object') {
+		return value
+	} else {
+		try {
+			console.log('JSON.parse(value) ', JSON.parse(value));
+			return JSON.parse(value);
+		} catch (e) {
+			console.log('**** parse error getItem= ', e, key, value);
+			return value
+		}
+	}
+	// else {
+	// 	console.log('*************** INVALID LS GETITEM VALUE **************** ', key, value);
+	// }
+}
+
+export const setLSItem = (key, value) => {
+	console.log('set LOCALSTORAGE ', key ); //value
+	if(value == null || value == undefined) {
+		// dont save
+	} else if (typeof value === 'object') {
+		localStorage.setItem(key, JSON.stringify(value));
+	} else {
+		localStorage.setItem(key, value);
+	}
+	// else {
+	// 	console.log('*************** INVALID LS SETITEM VALUE **************** ', key, value);
+	// }
+}

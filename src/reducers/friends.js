@@ -1,3 +1,5 @@
+import {getLSItem, setLSItem} from '../utility'
+
 export default function ng(state = [], action) {
 
 	const tempState = { ...state };
@@ -52,11 +54,12 @@ export default function ng(state = [], action) {
 
 				}catch(e){}
 				newFriends = friends
-				let friendsCache = localStorage.getItem('NG_PWA_friendsList')
+				let friendsCache = getLSItem('NG_PWA_friendsList')
+				// localStorage.getItem('NG_PWA_friendsList')
 				console.log("friendsCache= ", friendsCache, friends);
 				if(friendsCache != null && friendsCache != undefined && friendsCache != []
 					&& friends != undefined && friends != null && friends.length > 0) {
-					friendsCache = JSON.parse(friendsCache)
+					// friendsCache = JSON.parse(friendsCache)
 					console.log("friendsCache ok ");
 					newFriends = friends.map(friend => {
 						console.log("friend= ", friend);
@@ -75,22 +78,24 @@ export default function ng(state = [], action) {
 					})
 				}
 				console.log("newFriends= ", newFriends);
-				let unreadChatCounts
-				if(localStorage.getItem('NG_PWA_UNREAD_COUNTS') == null || localStorage.getItem('NG_PWA_UNREAD_COUNTS') == undefined ) {
-					console.log("NG_PWA_UNREAD_COUNTS not in localStorage= ", localStorage.getItem('NG_PWA_UNREAD_COUNTS'));
+				let unreadChatCounts = getLSItem('NG_PWA_UNREAD_COUNTS')
+				if(unreadChatCounts == null || unreadChatCounts == undefined ) {
+					console.log("NG_PWA_UNREAD_COUNTS not in localStorage= ", unreadChatCounts);
 					let friendsUnread = {}
 					friends.forEach(item => {
 						friendsUnread[item.meetingId] = 0
 					})
 					console.log('NG_PWA_UNREAD_COUNTS new in localStorage= ', friendsUnread);
-					localStorage.setItem('NG_PWA_UNREAD_COUNTS', JSON.stringify(friendsUnread))
+					setLSItem('NG_PWA_UNREAD_COUNTS', friendsUnread)
+					// localStorage.setItem('NG_PWA_UNREAD_COUNTS', JSON.stringify(friendsUnread))
 					unreadChatCounts = friendsUnread
 				} else {
-					unreadChatCounts = JSON.parse(localStorage.getItem('NG_PWA_UNREAD_COUNTS'))
+					// unreadChatCounts = JSON.parse(localStorage.getItem('NG_PWA_UNREAD_COUNTS'))
 					console.log("unreadChatCounts in  localstorage= ", unreadChatCounts);
 				}
 				console.log("final new friend= ", newFriends);
-				if(friends && friends.length > 0) localStorage.setItem('NG_PWA_friendsList', JSON.stringify(action.payload.data) );
+				if(friends && friends.length > 0) setLSItem('NG_PWA_friendsList', action.payload.data)
+				// localStorage.setItem('NG_PWA_friendsList', JSON.stringify(action.payload.data) );
 				isLoading = false;
 			}
 			console.log("unreadChatCounts in FRIENDS_LIST= ", unreadChatCounts);
@@ -106,20 +111,26 @@ export default function ng(state = [], action) {
 			lastChats = { ...tempState.lastChats };
 			lastChats[action.payload.id] = action.payload.msg;
 			console.log("lastChats in LAST_MSG= ", lastChats);
-			localStorage.setItem('NG_PWA_LAST_MSG', JSON.stringify(lastChats));
+			setLSItem('NG_PWA_LAST_MSG', lastChats)
+			// localStorage.setItem('NG_PWA_LAST_MSG', JSON.stringify(lastChats));
 			return { ...tempState, lastChats }
 			break;
 
 		case 'FRIENDS_LIST_CACHE':
 			console.log('FRIENDS_LIST_CACHE : ', action.payload, localStorage);
 			try {
-				const fromCache = localStorage.getItem('NG_PWA_friendsList');
-				const data = JSON.parse(fromCache);
+				const fromCache = getLSItem('NG_PWA_friendsList')
+				// localStorage.getItem('NG_PWA_friendsList');
+				const data = fromCache
+				// JSON.parse(fromCache);
 				me = data.me;
 				friends = data.friends;
-				lastChats = JSON.parse(localStorage.getItem('NG_PWA_LAST_MSG'));
-				botChats = JSON.parse(localStorage.getItem('NG_PWA_BOT_CHATS'));
-				unreadChatCounts = JSON.parse(localStorage.getItem('NG_PWA_UNREAD_COUNTS'));
+				lastChats = getLSItem('NG_PWA_LAST_MSG')
+				// JSON.parse(localStorage.getItem('NG_PWA_LAST_MSG'));
+				botChats = getLSItem('NG_PWA_BOT_CHATS')
+				// JSON.parse(localStorage.getItem('NG_PWA_BOT_CHATS'));
+				unreadChatCounts = getLSItem('NG_PWA_UNREAD_COUNTS')
+				// JSON.parse(localStorage.getItem('NG_PWA_UNREAD_COUNTS'));
 			}catch(e){}
 			console.log("unreadChatCounts in FRIENDS_LIST_CACHE= ", unreadChatCounts);
 			return { ...tempState, friends, me, lastChats, botChats, isLoading: false, unreadChatCounts }
@@ -149,22 +160,26 @@ export default function ng(state = [], action) {
 			const chats = { ...tempState.chats };
 			const triggerStamp = { ...tempState.triggerStamp };
 			console.log("last timestamp= ", triggerStamp);
-			let pastTrigger = localStorage.getItem(`CHAT_LAST_TRIGGERSTAMP_${chatMeetingId}`)
+			let pastTrigger = getLSItem(`CHAT_LAST_TRIGGERSTAMP_${chatMeetingId}`)
+			// localStorage.getItem(`CHAT_LAST_TRIGGERSTAMP_${chatMeetingId}`)
 			let pastTriggerStamp
 			if(pastTrigger != null) {
 				pastTriggerStamp = pastTrigger
 			} else {
 				pastTriggerStamp = 0
 			}
-			localStorage.setItem(`CHAT_LAST_TRIGGERSTAMP_${chatMeetingId}`, triggerStamp[chatMeetingId] ? triggerStamp[chatMeetingId] : pastTriggerStamp )
+			setLSItem(`CHAT_LAST_TRIGGERSTAMP_${chatMeetingId}`, triggerStamp[chatMeetingId] ? triggerStamp[chatMeetingId] : pastTriggerStamp)
+			// localStorage.setItem(`CHAT_LAST_TRIGGERSTAMP_${chatMeetingId}`, triggerStamp[chatMeetingId] ? triggerStamp[chatMeetingId] : pastTriggerStamp )
 			triggerStamp[chatMeetingId] = Date.now();
 			if(chats[chatMeetingId]) return { ...tempState, triggerStamp };
 			let chatsRetrieved = [];
 			const checkBotChat = { ...tempState.botChats };
 			const myBotChats = checkBotChat[chatMeetingId] || [];
-			const cachedChats = localStorage.getItem(`NG_PWA_CHAT_${chatMeetingId}`);
+			const cachedChats = getLSItem(`NG_PWA_CHAT_${chatMeetingId}`)
+			// localStorage.getItem(`NG_PWA_CHAT_${chatMeetingId}`);
 			if (cachedChats && cachedChats.length > 0) {
-				chatsRetrieved = JSON.parse(cachedChats);
+				chatsRetrieved = cachedChats
+				// JSON.parse(cachedChats);
 			}
 			chats[chatMeetingId] = myBotChats.concat(chatsRetrieved);
 			console.log("triggerStamp= ", triggerStamp);
@@ -187,7 +202,8 @@ export default function ng(state = [], action) {
 			const itemData = { ...tempState[item] };
 			itemData[id] = val;
 			if(item === 'friendsLastSeen') {
-				localStorage.setItem('NG_PWA_FRIEND_LAST_SEEN', JSON.stringify(itemData));
+				setLSItem('NG_PWA_FRIEND_LAST_SEEN', itemData)
+				// localStorage.setItem('NG_PWA_FRIEND_LAST_SEEN', JSON.stringify(itemData));
 			}
 			return { ...tempState, [item]: itemData };
 			break;
@@ -201,9 +217,11 @@ export default function ng(state = [], action) {
 				action.payload.status >= 200 && action.payload.status < 300
 			) {
 				const newChats = action.payload.data;
-				const cacheBotChats = JSON.parse(localStorage.getItem('NG_PWA_BOT_CHATS')) || {};
+				const cacheBotChats = getLSItem('NG_PWA_BOT_CHATS') || {};
+				// JSON.parse(localStorage.getItem('NG_PWA_BOT_CHATS'))
 				botChats = Object.assign(cacheBotChats, newChats);
-				localStorage.setItem('NG_PWA_BOT_CHATS', JSON.stringify(botChats));
+				setLSItem('NG_PWA_BOT_CHATS', botChats)
+				// localStorage.setItem('NG_PWA_BOT_CHATS', JSON.stringify(botChats));
 			}
 			return { ...tempState, botChats}
 
@@ -225,7 +243,8 @@ export default function ng(state = [], action) {
 
 				// lastChats[action.payload.id] = action.payload.msg;
 				lastChats[action.payload.meetingId] = action.payload.msg;
-				localStorage.setItem('NG_PWA_LAST_MSG', JSON.stringify(lastChats));
+				setLSItem('NG_PWA_LAST_MSG', lastChats)
+				// localStorage.setItem('NG_PWA_LAST_MSG', JSON.stringify(lastChats));
 				console.log("NG_PWA_LAST_MSG = ", lastChats);
 				console.log("SET_UNREAD_CHAT_COUNT = ", action.payload.meetingId, action.payload.count);
 
@@ -234,7 +253,9 @@ export default function ng(state = [], action) {
 			let ucc = tempState.unreadChatCounts ? tempState.unreadChatCounts : {}
 			ucc[action.payload.meetingId] = action.payload.count
 			console.log("setting NG_PWA_UNREAD_COUNTS = ", ucc);
-			localStorage.setItem('NG_PWA_UNREAD_COUNTS', JSON.stringify(ucc));
+			setLSItem('NG_PWA_UNREAD_COUNTS', ucc)
+			// localStorage.setItem('NG_PWA_UNREAD_COUNTS', JSON.stringify(ucc));
+
 			// let {friends} = tempState
 			// friends.forEach(item => {
 			// 	unreadChatCounts[item.meetingId]
